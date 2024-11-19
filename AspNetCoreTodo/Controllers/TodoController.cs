@@ -11,8 +11,8 @@ using Microsoft.AspNetCore.Identity;
 
 namespace AspNetCoreTodo.Controllers
 {
-    [Authorize]
-    public class TodoController : Controller
+[Authorize]
+public class TodoController : Controller
 {
     private readonly ITodoItemService _todoItemService;
     private readonly UserManager<IdentityUser> _userManager;
@@ -38,26 +38,27 @@ namespace AspNetCoreTodo.Controllers
             return View(model);
         }
 
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddItem(TodoItem newItem)
-    {
-        if (!ModelState.IsValid)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddItem(TodoItem newItem)
         {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction("Index");
+            }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null) return Challenge();
+
+            var successful = await _todoItemService
+                .AddItemAsync(newItem, currentUser);
+
+            if (!successful)
+            {
+                return BadRequest("Could not add item.");
+            }
+
             return RedirectToAction("Index");
         }
-
-        var currentUser = await _userManager.GetUserAsync(User);
-        if (currentUser == null) return Challenge();
-
-        var successful = await _todoItemService.AddItemAsync(newItem, currentUser);
-        
-        if (!successful)
-        {
-            return BadRequest("Could not add item.");
-        }
-
-        return RedirectToAction("Index");
-    }
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkDone(Guid id)
         {
@@ -69,8 +70,9 @@ namespace AspNetCoreTodo.Controllers
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null) return Challenge();
 
+            var successful = await _todoItemService
+                .MarkDoneAsync(id, currentUser);
 
-            var successful = await _todoItemService.MarkDoneAsync(id, currentUser);
             if (!successful)
             {
                 return BadRequest("Could not mark item as done.");

@@ -1,11 +1,12 @@
 using AspNetCoreTodo.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace AspNetCoreTodo.Services
 {
     public interface ITodoItemService
     {
-        Task<TodoItem[]> GetIncompleteItemsAsync();
-        Task<bool> AddItemAsync(TodoItem newItem); // Add this method to the interface
-        Task<bool> MarkDoneAsync(Guid id);
+        Task<TodoItem[]> GetIncompleteItemsAsync(IdentityUser user);
+        Task<bool> AddItemAsync(TodoItem newItem, IdentityUser user); // Add this method to the interface
+        Task<bool> MarkDoneAsync(Guid id, IdentityUser user);
     }
 }

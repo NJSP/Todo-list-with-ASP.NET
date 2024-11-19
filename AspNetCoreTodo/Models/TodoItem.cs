@@ -14,6 +14,8 @@ namespace AspNetCoreTodo.Models
         [Required]
         public DateTimeOffset DueAt { get; set; }
 
+        public string UserId { get; set; }
+
         public TodoItem()
         {
             // default due date is 3 days from now

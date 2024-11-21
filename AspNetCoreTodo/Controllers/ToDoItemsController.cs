@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-/*namespace AspNetCoreTodo.Controllers
+/*
+namespace AspNetCoreTodo.Controllers
 {
     public class ToDoItemsController : ControllerBase
     {
@@ -12,10 +13,11 @@
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateItem("id", "Mismatch");
         {
-            if (IDataTokensMetadata != value.Id)
+            if (id != value.Id)
             {
                 return BadRequest();
+        }
     }
 }
 
-    }*/
+*/

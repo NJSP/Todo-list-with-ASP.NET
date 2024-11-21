@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using AspNetCoreTodo.Data;
 using AspNetCoreTodo.Services;
 using AspNetCoreTodo;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddControllersWithViews();
@@ -21,7 +23,15 @@ builder.Services.AddScoped<ITodoItemService, TodoItemService>();
 
 builder.Services.AddSwaggerGen();
 
+//builder.Services.AddRazorPages();
+
 var app = builder.Build();
+
+// get the IWebHost
+var host = app.Services.GetRequiredService<IServiceProvider>();
+
+InitializeDatabase(app);
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -50,3 +60,22 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 app.Run();
+
+void InitializeDatabase(WebApplication app)
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+
+        try
+        {
+            SeedData.InitializeAsync(services).Wait();
+        }
+        catch (Exception ex)
+        {
+            var logger = services
+                .GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "Error occurred seeding the DB.");
+        }
+    }
+}
